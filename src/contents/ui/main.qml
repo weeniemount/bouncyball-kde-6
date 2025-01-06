@@ -175,11 +175,11 @@ PlasmoidItem {
         property bool bouncing: false
         property bool everBounced: false
 
+        property var velocity: Qt.vector2d(0, 0)
         property var gravity: plasmoid.configuration.gravity * units.devicePixelRatio
         property var friction: plasmoid.configuration.friction
         property var restitution: plasmoid.configuration.restitution
         property var time
-        property var velocity
         property var angularVelocity
         property var angle: 0
 
@@ -317,7 +317,7 @@ PlasmoidItem {
 
                 ParentChange {
                     target: ball
-                    parent: main.parent.parent.parent.parent.parent.parent.parent // HACK: Desktop containment
+                    parent: main.parent?.parent?.parent?.parent?.parent?.parent?.parent || null // HACK: Desktop containment
                 }
 
                 AnchorChanges {
@@ -358,12 +358,12 @@ PlasmoidItem {
 
             anchors.fill: parent
 
-            property int dragOffsetX
-            property int dragOffsetY
-            property int globalMouseX
-            property int globalMouseY
-            property int mouseAtLastTickX
-            property int mouseAtLastTickY
+            property int dragOffsetX: 0
+            property int dragOffsetY: 0
+            property int globalMouseX: 0
+            property int globalMouseY: 0
+            property int mouseAtLastTickX: 0
+            property int mouseAtLastTickY: 0
 
             drag.target: ball
             drag.minimumX: 0
