@@ -73,7 +73,7 @@ PlasmoidItem {
     Component {
         id: collisionSoundComponent
 
-        Audio {
+        MediaPlayer {
             id: collisionSound
 
             volume: plasmoid.configuration.soundVolume
