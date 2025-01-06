@@ -21,7 +21,7 @@
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.1
-import QtMultimedia 5.8
+import QtMultimedia
 
 import org.kde.plasma.plasmoid
 
@@ -32,7 +32,7 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 PlasmoidItem {
     id: main
 
-    backgroundHints: "NoBackground";
+    Plasmoid.backgroundHints: "NoBackground";
 
     fullRepresentation: ((plasmoid.location != PlasmaCore.Types.Desktop
         && plasmoid.location != PlasmaCore.Types.Floating) ? errorComponent : null)
@@ -77,20 +77,20 @@ PlasmoidItem {
         MediaPlayer {
             id: collisionSound
 
-            volume: plasmoid.configuration.soundVolume
+            //volume: plasmoid.configuration.soundVolume
 
             source: collisionSoundUrl
 
-            onStopped: destroy()
+            //onStopped: destroy()
 
-            Component.onCompleted: {
+            /*Component.onCompleted: {
                 play();
                 ++collisionSounds;
             }
 
             Component.onDestruction: {
                 --collisionSounds;
-            }
+            }*/
         }
     }
 
