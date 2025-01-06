@@ -27,7 +27,7 @@ import org.kde.plasma.plasmoid
 
 import org.kde.ksvg as KSvg
 import org.kde.plasma.core as PlasmaCore
-import org.kde.plasma.extras 2.0 as PlasmaExtras
+import org.kde.plasma.extras as PlasmaExtras
 
 PlasmoidItem {
     id: main
