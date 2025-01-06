@@ -54,6 +54,14 @@ PlasmoidItem {
 
     property int collisionSounds: 0
     readonly property string collisionSoundUrl: Qt.resolvedUrl("../sounds/bounce.ogg")
+    readonly property rect availableScreenRect: {
+        if (ball.bouncing) {
+            // When bouncing, use the full screen geometry
+            return Qt.rect(0, 0, Screen.width, Screen.height)
+        }
+        // When not bouncing, use the plasmoid's geometry
+        return Qt.rect(x, y, width, height)
+    }
 
     Component {
         id: errorComponent
@@ -210,34 +218,34 @@ PlasmoidItem {
                     velocity.y + (((Math.random() * 1000) - 500) * strength * (0.5/units.devicePixelRatio)));
             }
 
-            velocity = Qt.vector2d(velocity.x, velocity.y + (plasmoid.availableScreenRect.height * gravity * dT));
+            velocity = Qt.vector2d(velocity.x, velocity.y + (main.availableScreenRect.height * gravity * dT));
             velocity = Qt.vector2d(velocity.x * (1.0 - 2 * friction * dT), velocity.y * (1.0 - 2 * friction * dT));
 
-            var newX = x + ((velocity.x * dT) / units.devicePixelRatio);
-            var newY = y + ((velocity.y * dT) / units.devicePixelRatio);
+            var newX = ball.x + ((velocity.x * dT) / units.devicePixelRatio);
+            var newY = ball.y + ((velocity.y * dT) / units.devicePixelRatio);
 
             var collision = false;
             var bottom = false;
 
-            if ((newY + height) >= (plasmoid.availableScreenRect.y + plasmoid.availableScreenRect.height) && velocity.y > 0) {
-                newY = (plasmoid.availableScreenRect.y + plasmoid.availableScreenRect.height) - height;
+            if ((newY + height) >= (main.availableScreenRect.y + main.availableScreenRect.height) && velocity.y > 0) {
+                newY = (main.availableScreenRect.y + main.availableScreenRect.height) - height;
                 velocity = Qt.vector2d(velocity.x, velocity.y * -restitution);
-                angularVelocity = velocity.x / (width / 2);
+                angularVelocity = velocity.x / (ball.width / 2);
                 collision = true;
                 bottom = true;
             }
 
-            if (newY <= plasmoid.availableScreenRect.y && velocity.y < 0) {
-                newY = plasmoid.availableScreenRect.y;
+            if (newY <= main.availableScreenRect.y && velocity.y < 0) {
+                newY = main.availableScreenRect.y;
                 velocity = Qt.vector2d(velocity.x, velocity.y * -restitution);
-                angularVelocity = -velocity.x / (width / 2);
+                angularVelocity = -velocity.x / (ball.width / 2);
                 collision = true;
             }
 
-            if ((newX + width) >= (plasmoid.availableScreenRect.x + plasmoid.availableScreenRect.width) && velocity.x > 0) {
-                newX = (plasmoid.availableScreenRect.x + plasmoid.availableScreenRect.width) - width - 0.1;
+            if ((newX + width) >= (main.availableScreenRect.x + main.availableScreenRect.width) && velocity.x > 0) {
+                newX = (main.availableScreenRect.x + main.availableScreenRect.width) - width - 0.1;
                 velocity = Qt.vector2d(velocity.x * -restitution, velocity.y);
-                angularVelocity = -velocity.y / (width / 2);
+                angularVelocity = -velocity.y / (ball.width / 2);
 
                 if (bottom) {
                     velocity = Qt.vector2d(0, velocity.y);
@@ -246,8 +254,8 @@ PlasmoidItem {
                 collision = true;
             }
 
-            if (newX <= plasmoid.availableScreenRect.x && velocity.x < 0) {
-                newX = plasmoid.availableScreenRect.x = 0.1;
+            if (newX <= main.availableScreenRect.x && velocity.x < 0) {
+                newX = main.availableScreenRect.x = 0.1;
                 velocity = Qt.vector2d(velocity.x * -restitution, velocity.y);
                 angularVelocity = velocity.y / (width / 2);
 
@@ -359,24 +367,14 @@ PlasmoidItem {
 
             drag.target: ball
             drag.minimumX: 0
-            drag.maximumX: plasmoid.availableScreenRect.width - ball.width
+            drag.maximumX: main.availableScreenRect.width - ball.width
             drag.minimumY: 0
-            drag.maximumY: plasmoid.availableScreenRect.height - ball.height
+            drag.maximumY: main.availableScreenRect.height - ball.height
 
             hoverEnabled: true
 
-            function grabGlobalMousePos() {
-                var globalPos = ball.parent.mapToGlobal(ball.x, ball.y);
-                globalMouseX = globalPos.x + dragOffsetX;
-                globalMouseY = globalPos.y + dragOffsetY;
-            }
-
-            function snapshotMousePos() {
-                mouseAtLastTickX = globalMouseX;
-                mouseAtLastTickY = globalMouseY;
-            }
-
-            onPressed: {
+            // Update signal handlers to use function declarations
+            onPressed: function(event) {
                 if (!ball.bouncing) {
                     ball.bouncing = true;
                 }
@@ -388,20 +386,34 @@ PlasmoidItem {
                 physicsTick.start();
             }
 
-            onReleased: {
-                var globalPos = ballMouseArea.mapToGlobal(mouse.x, mouse.y);
+            onReleased: function(event) {
+                if (!ball.bouncing) return;
+                
+                var globalPos = ballMouseArea.mapToGlobal(event.x, event.y);
                 var step = physicsTick.interval / 2 / 1000;
                 ball.velocity = Qt.vector2d((globalPos.x - mouseAtLastTickX) / step,
                     (globalPos.y - mouseAtLastTickY) / step);
             }
 
-            onPositionChanged: {
-                dragOffsetX = mouse.x;
-                dragOffsetY = mouse.y;
+            onPositionChanged: function(event) {
+                dragOffsetX = event.x;
+                dragOffsetY = event.y;
             }
 
-            onDoubleClicked: {
+            onDoubleClicked: function(event) {
                 ball.bouncing = false;
+            }
+
+            function grabGlobalMousePos() {
+                if (!ball || !ball.parent) return;
+                var globalPos = ball.parent.mapToGlobal(ball.x || 0, ball.y || 0);
+                globalMouseX = globalPos.x + dragOffsetX;
+                globalMouseY = globalPos.y + dragOffsetY;
+            }
+
+            function snapshotMousePos() {
+                mouseAtLastTickX = globalMouseX;
+                mouseAtLastTickY = globalMouseY;
             }
         }
     }
