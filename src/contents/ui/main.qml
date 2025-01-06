@@ -117,7 +117,10 @@ PlasmoidItem {
         repeat: true
         triggeredOnStart: true
 
-        onTriggered: ball.bounce()
+        onTriggered: {
+            print("Timer triggered, ball.bouncing:", ball.bouncing)
+            ball.bounce()
+        }
     }
 
     Rectangle {
@@ -175,7 +178,7 @@ PlasmoidItem {
         property bool bouncing: false
         property bool everBounced: false
 
-        property var velocity: Qt.vector2d(0, 0)
+        property var velocity
         property var gravity: plasmoid.configuration.gravity * units.devicePixelRatio
         property var friction: plasmoid.configuration.friction
         property var restitution: plasmoid.configuration.restitution
@@ -184,16 +187,20 @@ PlasmoidItem {
         property var angle: 0
 
         rotation: (360 * angle / 6.28)
-
+        Component.onCompleted: {
+            print("Ball component loaded")
+        }
         onXChanged: !ballMouseArea.containsPress || ballMouseArea.grabGlobalMousePos()
         onYChanged: !ballMouseArea.containsPress || ballMouseArea.grabGlobalMousePos()
 
         onBouncingChanged: {
+            console.log("Bouncing changed:", bouncing)
             if (bouncing) {
-                everBounced = true;
+                everBounced = true
+                physicsTick.start()
             } else {
-                physicsTick.stop();
-                angle = 0;
+                physicsTick.stop()
+                angle = 0
             }
         }
 
@@ -387,12 +394,16 @@ PlasmoidItem {
             }
 
             onReleased: function(event) {
-                if (!ball.bouncing) return;
+                ball.bouncing = true
+                //if (!ball.bouncing) return;
                 
                 var globalPos = ballMouseArea.mapToGlobal(event.x, event.y);
                 var step = physicsTick.interval / 2 / 1000;
-                ball.velocity = Qt.vector2d((globalPos.x - mouseAtLastTickX) / step,
+                ball.velocity = Qt.vector2d(
+                    (globalPos.x - mouseAtLastTickX) / step,
                     (globalPos.y - mouseAtLastTickY) / step);
+                ball.bounce()
+                physicsTick.start()
             }
 
             onPositionChanged: function(event) {
