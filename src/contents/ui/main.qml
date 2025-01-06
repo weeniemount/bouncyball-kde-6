@@ -151,7 +151,7 @@ PlasmoidItem {
         onClicked: ball.bouncing = false
     }
 
-    PlasmaCore.SvgItem {
+    Svg {
         id: ball
 
         width: Math.min(main.width, main.height) - (2 * ballSocket.border.width) - (5 * units.devicePixelRatio)
@@ -182,9 +182,7 @@ PlasmoidItem {
             }
         }
 
-        svg: PlasmaCore.Svg {
-            imagePath: Qt.resolvedUrl("../images/bball.svgz")
-        }
+        imagePath: Qt.resolvedUrl("../images/bball.svgz")
 
         function bounce() {
             if (ballMouseArea.containsPress) {
