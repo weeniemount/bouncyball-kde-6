@@ -19,8 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .            *
  ******************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Layouts
 import QtMultimedia
 
 import org.kde.plasma.plasmoid
@@ -28,11 +28,17 @@ import org.kde.plasma.plasmoid
 import org.kde.ksvg as KSvg
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.extras as PlasmaExtras
+import org.kde.kirigami as Kirigami
+import org.kde.plasma.components as PC3
 
 PlasmoidItem {
     id: main
 
     Plasmoid.backgroundHints: "NoBackground";
+
+    property var units: Kirigami.Units
+    property var theme: Kirigami.Theme
+    property rect screenGeometry: Qt.rect(0, 0, Screen.width, Screen.height)
 
     fullRepresentation: ((plasmoid.location != PlasmaCore.Types.Desktop
         && plasmoid.location != PlasmaCore.Types.Floating) ? errorComponent : null)
@@ -183,7 +189,7 @@ PlasmoidItem {
             }
         }
 
-        imagePath: "../images/bball.svgz"
+        imagePath: Qt.resolvedUrl("../images/bball.svgz")
 
         function bounce() {
             if (ballMouseArea.containsPress) {
