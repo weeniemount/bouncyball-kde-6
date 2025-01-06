@@ -25,6 +25,7 @@ import QtMultimedia 5.8
 
 import org.kde.plasma.plasmoid
 
+import org.kde.ksvg as KSvg
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 
@@ -151,7 +152,7 @@ PlasmoidItem {
         onClicked: ball.bouncing = false
     }
 
-    Svg {
+    KSvg.SvgItem {
         id: ball
 
         width: Math.min(main.width, main.height) - (2 * ballSocket.border.width) - (5 * units.devicePixelRatio)
@@ -182,7 +183,7 @@ PlasmoidItem {
             }
         }
 
-        imagePath: Qt.resolvedUrl("../images/bball.svgz")
+        imagePath: "../images/bball.svgz"
 
         function bounce() {
             if (ballMouseArea.containsPress) {
