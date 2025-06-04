@@ -119,7 +119,7 @@ PlasmoidItem {
 
         color: theme.backgroundColor
 
-        opacity: 0.5
+        opacity: 1
 
         radius: width / 2
     }
